@@ -19,6 +19,16 @@
 Once you've cloned this repository locally, you can simply run:
 
 ```
+brew tap go-swagger/go-swagger
+brew install go-swagger
+
+# This is just wrong
+export GOPATH=~/Documents/git/mailosaur-go
+
+swagger generate client -f http://localhost:4000/assets/swagger.json -t src
+```
+
+```
 // TBC
 
 export MAILOSAUR_MAILBOX_ID=yourmailbox
