@@ -1,8 +1,8 @@
-package mailosaur_go_test
+package tests
 
 import (
 	"fmt"
-	mailosaur "github.com/mailosaur/mailosaur-go"
+	"github.com/mailosaur/mailosaur-go/mailosaur"
 	"github.com/stretchr/testify/assert"
 	"sync"
 	"testing"

@@ -1,7 +1,6 @@
-package mailosaur_go_test
+package tests
 
 import (
-	mailosaur "github.com/mailosaur/mailosaur-go"
 	"os"
 	"strconv"
 )
@@ -50,6 +49,3 @@ func init() {
 	testEnvironment.SmtpPort = port
 }
 
-func createTestClient() *mailosaur.MailosaurClient {
-	return mailosaur.NewMailosaurClient(testEnvironment.ApiKey, testEnvironment.BaseUrl)
-}

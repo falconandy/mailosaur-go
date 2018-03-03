@@ -1,4 +1,4 @@
-package mailosaur_go
+package mailosaur
 
 type MessagesOperations struct {
 	client *MailosaurClient

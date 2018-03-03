@@ -1,7 +1,7 @@
-package mailosaur_go_test
+package tests
 
 import (
-	mailosaur "github.com/mailosaur/mailosaur-go"
+	"github.com/mailosaur/mailosaur-go/mailosaur"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
