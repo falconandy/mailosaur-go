@@ -81,7 +81,8 @@ func (client *MailosaurClient) doRequest(method, apiPath string, requestData int
 			return err
 		}
 	}
-	req, err := http.NewRequest(method, fmt.Sprintf("%s/api/%s", client.baseURL, apiPath), bytes.NewReader(content))
+	apiUrl := fmt.Sprintf("%s/api/%s", client.baseURL, apiPath)
+	req, err := http.NewRequest(method, apiUrl, bytes.NewReader(content))
 	if err != nil {
 		return err
 	}
