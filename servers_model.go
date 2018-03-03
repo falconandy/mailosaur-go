@@ -1,5 +1,9 @@
 package mailosaur_go
 
+type ServerListResult struct {
+	Items []*Server
+}
+
 type Server struct {
 	ID              string
 	Password        string

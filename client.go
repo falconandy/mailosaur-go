@@ -9,9 +9,12 @@ import (
 )
 
 type MailosaurClient struct {
-	apiKey  string
-	baseURL string
-	servers *ServersOperations
+	apiKey   string
+	baseURL  string
+	servers  *ServersOperations
+	messages *MessagesOperations
+	analysis *AnalysisOperations
+	files    *FilesOperations
 }
 
 func NewMailosaurClient(apiKey string, baseURL string) *MailosaurClient {
@@ -23,6 +26,9 @@ func NewMailosaurClient(apiKey string, baseURL string) *MailosaurClient {
 		baseURL: baseURL,
 	}
 	client.servers = newServersOperations(client)
+	client.messages = newMessagesOperations(client)
+	client.analysis = newAnalysisOperations(client)
+	client.files = newFilesOperations(client)
 	return client
 }
 
@@ -30,40 +36,52 @@ func (client *MailosaurClient) Servers() *ServersOperations {
 	return client.servers
 }
 
-func (client *MailosaurClient) get(apiPath string) ([]byte, error) {
-	return client.doRequest("GET", apiPath, nil)
+func (client *MailosaurClient) Messages() *MessagesOperations {
+	return client.messages
 }
 
-func (client *MailosaurClient) post(apiPath string, data interface{}) ([]byte, error) {
-	return client.doRequest("POST", apiPath, data)
+func (client *MailosaurClient) Analysis() *AnalysisOperations {
+	return client.analysis
 }
 
-func (client *MailosaurClient) put(apiPath string, data interface{}) ([]byte, error) {
-	return client.doRequest("PUT", apiPath, data)
+func (client *MailosaurClient) Files() *FilesOperations {
+	return client.files
 }
 
-func (client *MailosaurClient) delete(apiPath string) ([]byte, error) {
-	return client.doRequest("DELETE", apiPath, nil)
+func (client *MailosaurClient) get(apiPath string, responseData interface{}) error {
+	return client.doRequest("GET", apiPath, nil, responseData)
 }
 
-func (client *MailosaurClient) doRequest(method, apiPath string, data interface{}) ([]byte, error) {
+func (client *MailosaurClient) post(apiPath string, requestData interface{}, responseData interface{}) error {
+	return client.doRequest("POST", apiPath, requestData, responseData)
+}
+
+func (client *MailosaurClient) put(apiPath string, requestData interface{}, responseData interface{}) error {
+	return client.doRequest("PUT", apiPath, requestData, responseData)
+}
+
+func (client *MailosaurClient) delete(apiPath string) error {
+	return client.doRequest("DELETE", apiPath, nil, nil)
+}
+
+func (client *MailosaurClient) doRequest(method, apiPath string, requestData interface{}, responseData interface{}) error {
 	var content []byte
-	if data != nil {
+	if requestData != nil {
 		var err error
-		content, err = json.Marshal(data)
+		content, err = json.Marshal(requestData)
 		if err != nil {
-			return nil, err
+			return err
 		}
 	}
 	req, err := http.NewRequest(method, client.baseURL+apiPath, bytes.NewReader(content))
 	if err != nil {
-		return nil, err
+		return err
 	}
 	req.SetBasicAuth(client.apiKey, "")
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
 	resp, err := http.DefaultClient.Do(req) // TODO: default client
 	if err != nil {
-		return nil, err
+		return err
 	}
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
@@ -76,7 +94,14 @@ func (client *MailosaurClient) doRequest(method, apiPath string, data interface{
 		if err == nil {
 			ex.MailosaurError = mErr
 		}
-		return nil, ex
+		return ex
 	}
-	return body, err
+	if resp.StatusCode == 204 {
+		return nil
+	}
+	if responseBytes, ok := responseData.(*[]byte); ok {
+		*responseBytes = body
+		return nil
+	}
+	return json.Unmarshal(body, responseData)
 }

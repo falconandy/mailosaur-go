@@ -10,7 +10,7 @@ func TestServersList(t *testing.T) {
 	client := createTestClient()
 	result, err := client.Servers().List()
 	assert.Nil(t, err)
-	assert.True(t, len(result) > 0)
+	assert.True(t, len(result.Items) > 0)
 }
 
 func TestServersGetNotFound(t *testing.T) {
@@ -19,6 +19,8 @@ func TestServersGetNotFound(t *testing.T) {
 	// Should fail if server is not found
 	result, err := client.Servers().Get("efe907e9-74ed-4113-a3e0-a3d41d914765")
 	assert.NotNil(t, err)
+	_, ok := err.(mailosaur.MailosaurException)
+	assert.True(t, ok)
 	assert.Nil(t, result)
 }
 
@@ -67,6 +69,8 @@ func TestServersCRUD(t *testing.T) {
 	// Attempting to delete again should fail
 	err = client.Servers().Delete(retrievedServer.ID)
 	assert.NotNil(t, err)
+	_, ok := err.(mailosaur.MailosaurException)
+	assert.True(t, ok)
 }
 
 func TestServersFailedCreateTest(t *testing.T) {
