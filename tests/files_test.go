@@ -51,7 +51,7 @@ func TestFilesGetEmail(t *testing.T) {
 	result, err := scope.client.Files().GetEmail(scope.email.ID)
 	assert.Nil(t, err)
 	assert.NotNil(t, result)
-	assert.True(t, len(result) > 0)
+	assert.True(t, len(result) > 1)
 	assert.Contains(t, string(result), scope.email.Subject)
 }
 

@@ -152,7 +152,7 @@ func TestEmailsSearchBySubject(t *testing.T) {
 
 func TestAnalysisSpam(t *testing.T) {
 	scope := getEmailsScope()
-	targetId := scope.emails[1].ID
+	targetId := scope.emails[0].ID
 	result, err := scope.client.Analysis().Spam(targetId)
 	assert.Nil(t, err)
 	for _, rule := range result.SpamFilterResults.SpamAssassin {
@@ -175,39 +175,16 @@ func TestEmailsDelete(t *testing.T) {
 	assert.True(t, ok)
 }
 
-func validateEmailSummary(t *testing.T, email *mailosaur.MessageSummary) {
-	validateSummaryMetadata(t, email)
-	assert.Equal(t, 2, email.Attachments)
-}
-
-func validateSummaryMetadata(t *testing.T, email *mailosaur.MessageSummary) {
-	assert.Equal(t, 1, len(email.From))
-	assert.Equal(t, 1, len(email.To))
-	assert.NotEmpty(t, email.From[0].Email)
-	assert.NotEmpty(t, email.From[0].Name)
-	assert.NotEmpty(t, email.To[0].Email)
-	assert.NotEmpty(t, email.To[0].Name)
-	assert.NotEmpty(t, email.Subject)
-
-	assert.Equal(t, time.Now().Format("2006-01-02"), email.Received.Format("2006-01-02"))
-}
-
-func validateMetadata(t *testing.T, email *mailosaur.Message) {
-	validateSummaryMetadata(t, &mailosaur.MessageSummary{
-		From:     email.From,
-		To:       email.To,
-		Cc:       email.Cc,
-		Bcc:      email.Bcc,
-		Subject:  email.Subject,
-		Received: email.Received,
-	})
-}
-
 func validateEmail(t *testing.T, email *mailosaur.Message) {
 	validateMetadata(t, email)
 	validateAttachmentMetadata(t, email)
 	validateHtml(t, email)
 	validateText(t, email)
+}
+
+func validateEmailSummary(t *testing.T, email *mailosaur.MessageSummary) {
+	validateSummaryMetadata(t, email)
+	assert.Equal(t, 2, email.Attachments)
 }
 
 func validateHtml(t *testing.T, email *mailosaur.Message) {
@@ -240,6 +217,37 @@ func validateText(t *testing.T, email *mailosaur.Message) {
 	assert.Equal(t, email.Text.Links[1].Href, email.Text.Links[1].Text)
 }
 
+func validateHeaders(t *testing.T, email *mailosaur.Message) {
+	expectedFromHeader := fmt.Sprintf("\"%s\" <%s>", email.From[0].Name, email.From[0].Email)
+	expectedToHeader := fmt.Sprintf("\"%s\" <%s>", email.To[0].Name, email.To[0].Email)
+	assert.Equal(t, expectedFromHeader, getEmailHeaderValue(email, "From"))
+	assert.Equal(t, expectedToHeader, getEmailHeaderValue(email, "To"))
+	assert.Equal(t, email.Subject, getEmailHeaderValue(email, "Subject"))
+}
+
+func validateMetadata(t *testing.T, email *mailosaur.Message) {
+	validateSummaryMetadata(t, &mailosaur.MessageSummary{
+		From:     email.From,
+		To:       email.To,
+		Cc:       email.Cc,
+		Bcc:      email.Bcc,
+		Subject:  email.Subject,
+		Received: email.Received,
+	})
+}
+
+func validateSummaryMetadata(t *testing.T, email *mailosaur.MessageSummary) {
+	assert.Equal(t, 1, len(email.From))
+	assert.Equal(t, 1, len(email.To))
+	assert.NotEmpty(t, email.From[0].Email)
+	assert.NotEmpty(t, email.From[0].Name)
+	assert.NotEmpty(t, email.To[0].Email)
+	assert.NotEmpty(t, email.To[0].Name)
+	assert.NotEmpty(t, email.Subject)
+
+	assert.Equal(t, time.Now().Format("2006-01-02"), email.Received.Format("2006-01-02"))
+}
+
 func validateAttachmentMetadata(t *testing.T, email *mailosaur.Message) {
 	assert.Equal(t, 2, len(email.Attachments))
 
@@ -256,14 +264,6 @@ func validateAttachmentMetadata(t *testing.T, email *mailosaur.Message) {
 	assert.NotEmpty(t, file2.Url)
 	assert.Equal(t, "dog.png", file2.FileName)
 	assert.Equal(t, "image/png", file2.ContentType)
-}
-
-func validateHeaders(t *testing.T, email *mailosaur.Message) {
-	expectedFromHeader := fmt.Sprintf("\"%s\" <%s>", email.From[0].Name, email.From[0].Email)
-	expectedToHeader := fmt.Sprintf("\"%s\" <%s>", email.To[0].Name, email.To[0].Email)
-	assert.Equal(t, expectedFromHeader, getEmailHeaderValue(email, "From"))
-	assert.Equal(t, expectedToHeader, getEmailHeaderValue(email, "To"))
-	assert.Equal(t, email.Subject, getEmailHeaderValue(email, "Subject"))
 }
 
 func getEmailHeaderValue(email *mailosaur.Message, field string) string {
