@@ -7,7 +7,7 @@
 ## Installation
 
 ```
-// TBC
+go get github.com/mailosaur/mailosaur-go/...
 ```
 
 ## Documentation and usage examples
@@ -16,25 +16,13 @@
 
 ## Running tests
 
-Once you've cloned this repository locally, you can simply run:
+Once you've installed this repository locally, you can simply run:
 
 ```
-brew tap go-swagger/go-swagger
-brew install go-swagger
+export MAILOSAUR_API_KEY=your_api_key
+export MAILOSAUR_SERVER=server_id
 
-# This is just wrong
-export GOPATH=~/Documents/git/mailosaur-go
-
-swagger generate client -f http://localhost:4000/assets/swagger.json -t src
-```
-
-```
-// TBC
-
-export MAILOSAUR_MAILBOX_ID=yourmailbox
-export MAILOSAUR_API_KEY=yourapikey
-
-// TBC
+go test github.com/mailosaur/mailosaur-go/tests
 ```
 
 ## Contacting us
