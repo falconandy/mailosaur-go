@@ -19,18 +19,13 @@ var (
 
 func init() {
 	apiKey := os.Getenv("MAILOSAUR_API_KEY")
-	if apiKey == "" {
-		// TODO panic
-		apiKey = "<API_KEY>"
+	server := os.Getenv("MAILOSAUR_SERVER")
+
+	if apiKey == "" || server == "" {
+		panic("Missing necessary environment variables - refer to README.md")
 	}
 
 	baseURL := os.Getenv("MAILOSAUR_BASE_URL")
-
-	server := os.Getenv("MAILOSAUR_SERVER")
-	if server == "" {
-		// TODO fail
-		server = "<SERVER_ID>"
-	}
 
 	host := os.Getenv("MAILOSAUR_SMTP_HOST")
 	if host == "" {
@@ -48,4 +43,3 @@ func init() {
 	testEnvironment.SmtpHost = host
 	testEnvironment.SmtpPort = port
 }
-

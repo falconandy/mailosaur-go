@@ -6,11 +6,14 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strings"
 )
 
 type MailosaurClient struct {
-	apiKey   string
-	baseURL  string
+	apiKey     string
+	baseURL    string
+	httpClient *http.Client
+
 	servers  *ServersOperations
 	messages *MessagesOperations
 	analysis *AnalysisOperations
@@ -19,17 +22,22 @@ type MailosaurClient struct {
 
 func NewMailosaurClient(apiKey string, baseURL string) *MailosaurClient {
 	if baseURL == "" {
-		baseURL = "https://mailosaur.com/api/" // TODO api? /?
+		baseURL = "https://mailosaur.com"
 	}
 	client := &MailosaurClient{
-		apiKey:  apiKey,
-		baseURL: baseURL,
+		apiKey:     apiKey,
+		baseURL:    strings.TrimSuffix(baseURL, "/"),
+		httpClient: http.DefaultClient,
 	}
 	client.servers = newServersOperations(client)
 	client.messages = newMessagesOperations(client)
 	client.analysis = newAnalysisOperations(client)
 	client.files = newFilesOperations(client)
 	return client
+}
+
+func (client *MailosaurClient) SetHttpClient(httpClient *http.Client) {
+	client.httpClient = httpClient
 }
 
 func (client *MailosaurClient) Servers() *ServersOperations {
@@ -73,13 +81,13 @@ func (client *MailosaurClient) doRequest(method, apiPath string, requestData int
 			return err
 		}
 	}
-	req, err := http.NewRequest(method, client.baseURL+apiPath, bytes.NewReader(content))
+	req, err := http.NewRequest(method, fmt.Sprintf("%s/api/%s", client.baseURL, apiPath), bytes.NewReader(content))
 	if err != nil {
 		return err
 	}
 	req.SetBasicAuth(client.apiKey, "")
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
-	resp, err := http.DefaultClient.Do(req) // TODO: default client
+	resp, err := client.httpClient.Do(req)
 	if err != nil {
 		return err
 	}

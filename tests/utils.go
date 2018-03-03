@@ -1,9 +1,9 @@
 package tests
 
 import (
+	"fmt"
 	"github.com/mailosaur/mailosaur-go/mailosaur"
 	"math/rand"
-	"fmt"
 )
 
 const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"

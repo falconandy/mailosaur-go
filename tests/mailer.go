@@ -50,7 +50,7 @@ func sendEmail(server string, sendToAddress string) error {
 
 	m := gomail.NewMessage()
 	m.SetHeader("Subject", randomString+" subject")
-	m.SetAddressHeader("From", randomString+"@test.com", fmt.Sprintf("%s %s", randomString, randomString)) //TODO
+	m.SetAddressHeader("From", randomString+"@test.com", fmt.Sprintf("%s %s", randomString, randomString))
 	m.SetAddressHeader("To", randomToAddress, fmt.Sprintf("%s %s", randomString, randomString))
 	m.SetBody("text/plain", strings.Replace(senderText, "REPLACED_DURING_TEST", randomString, -1))
 	m.AddAlternative("text/html", strings.Replace(senderHtml, "REPLACED_DURING_TEST", randomString, -1))
