@@ -2,32 +2,27 @@ package mailosaur
 
 import "time"
 
-type MessageListResult struct {
-	Items []*MessageSummary
+type Attachment struct {
+	Id          string
+	ContentType string
+	FileName    string
+	ContentId   string
+	Length      int
+	Url         string
 }
 
-type MessageSummary struct {
-	ID          string
-	Server      string
-	Rcpt        []MessageAddress
-	From        []MessageAddress
-	To          []MessageAddress
-	Cc          []MessageAddress
-	Bcc         []MessageAddress
-	Received    time.Time
-	Subject     string
-	Summary     string
-	Attachments int
+type Image struct {
+	Src string
+	Alt string
 }
 
-type MessageAddress struct {
-	Name  string
-	Email string
-	Phone string
+type Link struct {
+	Href string
+	Text string
 }
 
 type Message struct {
-	ID          string
+	Id          string
 	Rcpt        []MessageAddress
 	From        []MessageAddress
 	To          []MessageAddress
@@ -42,38 +37,43 @@ type Message struct {
 	Server      string
 }
 
+type MessageAddress struct {
+	Name  string
+	Email string
+	Phone string
+}
+
 type MessageContent struct {
 	Links  []Link
 	Images []Image
 	Body   string
 }
 
-type Attachment struct {
-	ID          string
-	ContentType string
-	FileName    string
-	ContentId   string
-	Length      int
-	Url         string
+type MessageHeader struct {
+	Field string
+	Value string
+}
+
+type MessageListResult struct {
+	Items []*MessageSummary
+}
+
+type MessageSummary struct {
+	Id          string
+	Server      string
+	Rcpt        []MessageAddress
+	From        []MessageAddress
+	To          []MessageAddress
+	Cc          []MessageAddress
+	Bcc         []MessageAddress
+	Received    time.Time
+	Subject     string
+	Summary     string
+	Attachments int
 }
 
 type Metadata struct {
 	Headers []MessageHeader
-}
-
-type Link struct {
-	Href string
-	Text string
-}
-
-type Image struct {
-	Src string
-	Alt string
-}
-
-type MessageHeader struct {
-	Field string
-	Value string
 }
 
 type SearchCriteria struct {

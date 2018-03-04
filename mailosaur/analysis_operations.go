@@ -10,6 +10,7 @@ func newAnalysisOperations(client *MailosaurClient) *AnalysisOperations {
 	}
 }
 
+// Perform spam testing on the specified email.
 func (op *AnalysisOperations) Spam(emailId string) (SpamAnalysisResult, error) {
 	var spamResult SpamAnalysisResult
 	err := op.client.get("analysis/spam/"+emailId, &spamResult)

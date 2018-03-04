@@ -1,18 +1,5 @@
 package mailosaur
 
-type ServerListResult struct {
-	Items []*Server
-}
-
-type Server struct {
-	ID              string
-	Password        string
-	Name            string
-	Users           []string
-	Messages        int
-	ForwardingRules []ForwardingRule
-}
-
 type ForwardingRule struct {
 	Field     string
 	Operator  string
@@ -20,6 +7,19 @@ type ForwardingRule struct {
 	ForwardTo string
 }
 
+type Server struct {
+	Id              string
+	Password        string
+	Name            string
+	Users           []string
+	Messages        int
+	ForwardingRules []ForwardingRule
+}
+
 type ServerCreateOptions struct {
 	Name string
+}
+
+type ServerListResult struct {
+	Items []*Server
 }

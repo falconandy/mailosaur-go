@@ -25,7 +25,7 @@ func init() {
 		panic("Missing necessary environment variables - refer to README.md")
 	}
 
-	baseURL := os.Getenv("MAILOSAUR_BASE_URL")
+	baseUrl := os.Getenv("MAILOSAUR_BASE_URL")
 
 	host := os.Getenv("MAILOSAUR_SMTP_HOST")
 	if host == "" {
@@ -38,7 +38,7 @@ func init() {
 	}
 
 	testEnvironment.ApiKey = apiKey
-	testEnvironment.BaseUrl = baseURL
+	testEnvironment.BaseUrl = baseUrl
 	testEnvironment.Server = server
 	testEnvironment.SmtpHost = host
 	testEnvironment.SmtpPort = port

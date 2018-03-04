@@ -11,7 +11,7 @@ import (
 
 type MailosaurClient struct {
 	apiKey     string
-	baseURL    string
+	baseUrl    string
 	httpClient *http.Client
 
 	servers  *ServersOperations
@@ -20,13 +20,10 @@ type MailosaurClient struct {
 	files    *FilesOperations
 }
 
-func NewMailosaurClient(apiKey string, baseURL string) *MailosaurClient {
-	if baseURL == "" {
-		baseURL = "https://mailosaur.com"
-	}
+func NewMailosaurClient(apiKey string) *MailosaurClient {
 	client := &MailosaurClient{
 		apiKey:     apiKey,
-		baseURL:    strings.TrimSuffix(baseURL, "/"),
+		baseUrl:    "https://mailosaur.com",
 		httpClient: http.DefaultClient,
 	}
 	client.servers = newServersOperations(client)
@@ -34,6 +31,10 @@ func NewMailosaurClient(apiKey string, baseURL string) *MailosaurClient {
 	client.analysis = newAnalysisOperations(client)
 	client.files = newFilesOperations(client)
 	return client
+}
+
+func (client *MailosaurClient) SetBaseUrl(baseUrl string) {
+	client.baseUrl = strings.TrimSuffix(baseUrl, "/")
 }
 
 func (client *MailosaurClient) SetHttpClient(httpClient *http.Client) {
@@ -81,7 +82,7 @@ func (client *MailosaurClient) doRequest(method, apiPath string, requestData int
 			return err
 		}
 	}
-	apiUrl := fmt.Sprintf("%s/api/%s", client.baseURL, apiPath)
+	apiUrl := fmt.Sprintf("%s/api/%s", client.baseUrl, apiPath)
 	req, err := http.NewRequest(method, apiUrl, bytes.NewReader(content))
 	if err != nil {
 		return err

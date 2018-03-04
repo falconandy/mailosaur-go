@@ -9,7 +9,11 @@ import (
 const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
 func createTestClient() *mailosaur.MailosaurClient {
-	return mailosaur.NewMailosaurClient(testEnvironment.ApiKey, testEnvironment.BaseUrl)
+	client := mailosaur.NewMailosaurClient(testEnvironment.ApiKey)
+	if testEnvironment.BaseUrl != "" {
+		client.SetBaseUrl(testEnvironment.BaseUrl)
+	}
+	return client
 }
 
 func generateRandomString() string {

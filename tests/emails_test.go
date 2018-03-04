@@ -58,7 +58,7 @@ func TestEmailsList(t *testing.T) {
 func TestEmailsGet(t *testing.T) {
 	scope := getEmailsScope()
 	emailToRetrieve := scope.emails[0]
-	email, err := scope.client.Messages().Get(emailToRetrieve.ID)
+	email, err := scope.client.Messages().Get(emailToRetrieve.Id)
 	assert.Nil(t, err)
 	validateEmail(t, email)
 	validateHeaders(t, email)
@@ -152,7 +152,7 @@ func TestEmailsSearchBySubject(t *testing.T) {
 
 func TestAnalysisSpam(t *testing.T) {
 	scope := getEmailsScope()
-	targetId := scope.emails[0].ID
+	targetId := scope.emails[0].Id
 	result, err := scope.client.Analysis().Spam(targetId)
 	assert.Nil(t, err)
 	for _, rule := range result.SpamFilterResults.SpamAssassin {
@@ -163,7 +163,7 @@ func TestAnalysisSpam(t *testing.T) {
 
 func TestEmailsDelete(t *testing.T) {
 	scope := getEmailsScope()
-	targetEmailId := scope.emails[4].ID
+	targetEmailId := scope.emails[4].Id
 
 	err := scope.client.Messages().Delete(targetEmailId)
 	assert.Nil(t, err)
@@ -252,14 +252,14 @@ func validateAttachmentMetadata(t *testing.T, email *mailosaur.Message) {
 	assert.Equal(t, 2, len(email.Attachments))
 
 	var file1 = email.Attachments[0]
-	assert.NotEmpty(t, file1.ID)
+	assert.NotEmpty(t, file1.Id)
 	assert.Equal(t, 82138, file1.Length)
 	assert.NotEmpty(t, file1.Url)
 	assert.Equal(t, "ii_1435fadb31d523f6", file1.FileName)
 	assert.Equal(t, "image/png", file1.ContentType)
 
 	var file2 = email.Attachments[1]
-	assert.NotEmpty(t, file2.ID)
+	assert.NotEmpty(t, file2.Id)
 	assert.Equal(t, 212080, file2.Length)
 	assert.NotEmpty(t, file2.Url)
 	assert.Equal(t, "dog.png", file2.FileName)

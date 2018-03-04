@@ -48,7 +48,7 @@ func getFilesScope() *FilesScope {
 
 func TestFilesGetEmail(t *testing.T) {
 	scope := getFilesScope()
-	result, err := scope.client.Files().GetEmail(scope.email.ID)
+	result, err := scope.client.Files().GetEmail(scope.email.Id)
 	assert.Nil(t, err)
 	assert.NotNil(t, result)
 	assert.True(t, len(result) > 1)
@@ -58,7 +58,7 @@ func TestFilesGetEmail(t *testing.T) {
 func TestFilesGetAttachment(t *testing.T) {
 	scope := getFilesScope()
 	attachment := scope.email.Attachments[0]
-	result, err := scope.client.Files().GetAttachment(attachment.ID)
+	result, err := scope.client.Files().GetAttachment(attachment.Id)
 	assert.Nil(t, err)
 	assert.NotNil(t, result)
 	assert.Equal(t, attachment.Length, len(result))
