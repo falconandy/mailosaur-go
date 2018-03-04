@@ -9,6 +9,10 @@ import (
 	"strings"
 )
 
+const (
+	defaultBaseUrl = "https://mailosaur.com"
+)
+
 type MailosaurClient struct {
 	apiKey     string
 	baseUrl    string
@@ -23,7 +27,7 @@ type MailosaurClient struct {
 func NewMailosaurClient(apiKey string) *MailosaurClient {
 	client := &MailosaurClient{
 		apiKey:     apiKey,
-		baseUrl:    "https://mailosaur.com",
+		baseUrl:    defaultBaseUrl,
 		httpClient: http.DefaultClient,
 	}
 	client.servers = newServersOperations(client)
@@ -34,11 +38,19 @@ func NewMailosaurClient(apiKey string) *MailosaurClient {
 }
 
 func (client *MailosaurClient) SetBaseUrl(baseUrl string) {
-	client.baseUrl = strings.TrimSuffix(baseUrl, "/")
+	if baseUrl != "" {
+		client.baseUrl = strings.TrimSuffix(baseUrl, "/")
+	} else {
+		client.baseUrl = defaultBaseUrl
+	}
 }
 
 func (client *MailosaurClient) SetHttpClient(httpClient *http.Client) {
-	client.httpClient = httpClient
+	if httpClient != nil {
+		client.httpClient = httpClient
+	} else {
+		client.httpClient = http.DefaultClient
+	}
 }
 
 func (client *MailosaurClient) Servers() *ServersOperations {
@@ -58,43 +70,71 @@ func (client *MailosaurClient) Files() *FilesOperations {
 }
 
 func (client *MailosaurClient) get(apiPath string, responseData interface{}) error {
-	return client.doRequest("GET", apiPath, nil, responseData)
+	return client.doApiRequest("GET", apiPath, nil, responseData)
 }
 
 func (client *MailosaurClient) post(apiPath string, requestData interface{}, responseData interface{}) error {
-	return client.doRequest("POST", apiPath, requestData, responseData)
+	return client.doApiRequest("POST", apiPath, requestData, responseData)
 }
 
 func (client *MailosaurClient) put(apiPath string, requestData interface{}, responseData interface{}) error {
-	return client.doRequest("PUT", apiPath, requestData, responseData)
+	return client.doApiRequest("PUT", apiPath, requestData, responseData)
 }
 
 func (client *MailosaurClient) delete(apiPath string) error {
-	return client.doRequest("DELETE", apiPath, nil, nil)
+	return client.doApiRequest("DELETE", apiPath, nil, nil)
 }
 
-func (client *MailosaurClient) doRequest(method, apiPath string, requestData interface{}, responseData interface{}) error {
+func (client *MailosaurClient) doApiRequest(method, apiPath string, requestData interface{}, responseData interface{}) error {
+	req, err := client.createApiRequest(method, apiPath, requestData)
+	if err != nil {
+		return err
+	}
+	resp, err := client.httpClient.Do(req)
+	if err != nil {
+		return err
+	}
+	return client.processApiResponse(resp, responseData)
+}
+
+func (client *MailosaurClient) createApiRequest(method, apiPath string, requestData interface{}) (*http.Request, error) {
 	var content []byte
 	if requestData != nil {
 		var err error
 		content, err = json.Marshal(requestData)
 		if err != nil {
-			return err
+			return nil, err
 		}
 	}
 	apiUrl := fmt.Sprintf("%s/api/%s", client.baseUrl, apiPath)
 	req, err := http.NewRequest(method, apiUrl, bytes.NewReader(content))
 	if err != nil {
-		return err
+		return nil, err
 	}
 	req.SetBasicAuth(client.apiKey, "")
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
-	resp, err := client.httpClient.Do(req)
+	return req, nil
+}
+
+func (client *MailosaurClient) processApiResponse(resp *http.Response, responseData interface{}) error {
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
+
+	if resp.StatusCode == 204 {
+		return nil
+	}
+
+	if resp.StatusCode == 200 {
+		if responseBytes, ok := responseData.(*[]byte); ok {
+			*responseBytes = body
+			return nil
+		}
+		return json.Unmarshal(body, responseData)
+	}
+
 	if 400 <= resp.StatusCode && resp.StatusCode < 600 {
 		ex := MailosaurException{
 			Message: fmt.Sprintf("Operation returned an invalid status code '%s'", resp.Status),
@@ -106,12 +146,6 @@ func (client *MailosaurClient) doRequest(method, apiPath string, requestData int
 		}
 		return ex
 	}
-	if resp.StatusCode == 204 {
-		return nil
-	}
-	if responseBytes, ok := responseData.(*[]byte); ok {
-		*responseBytes = body
-		return nil
-	}
-	return json.Unmarshal(body, responseData)
+
+	return fmt.Errorf("unsupported status code: %s", resp.Status)
 }

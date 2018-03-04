@@ -7,7 +7,7 @@
 ## Installation
 
 ```
-go get github.com/mailosaur/mailosaur-go/...
+go get -u github.com/mailosaur/mailosaur-go/...
 ```
 
 ## Documentation and usage examples

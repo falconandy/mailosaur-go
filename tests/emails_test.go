@@ -46,13 +46,21 @@ func getEmailsScope() *EmailsScope {
 	return emailsScope
 }
 
-func TestEmailsList(t *testing.T) {
+func TestEmailsScopeList(t *testing.T) {
 	scope := getEmailsScope()
 	assert.Equal(t, 5, len(scope.emails))
 
 	for _, email := range scope.emails {
 		validateEmailSummary(t, email)
 	}
+}
+
+func TestEmailsListPage(t *testing.T) {
+	scope := getEmailsScope()
+	result, err := scope.client.Messages().ListPage(scope.server, 1, 2)
+
+	assert.Nil(t, err)
+	assert.Equal(t, 2, len(result.Items))
 }
 
 func TestEmailsGet(t *testing.T) {
@@ -148,6 +156,16 @@ func TestEmailsSearchBySubject(t *testing.T) {
 	assert.Equal(t, 1, len(result.Items))
 	assert.Equal(t, targetEmail.To[0].Email, result.Items[0].To[0].Email)
 	assert.Equal(t, targetEmail.Subject, result.Items[0].Subject)
+}
+
+func TestEmailsSearchPageBySubject(t *testing.T) {
+	scope := getEmailsScope()
+	result, err := scope.client.Messages().SearchPage(scope.server, mailosaur.SearchCriteria{
+		Subject: "subject",
+	}, 1, 2)
+
+	assert.Nil(t, err)
+	assert.Equal(t, 2, len(result.Items))
 }
 
 func TestAnalysisSpam(t *testing.T) {
